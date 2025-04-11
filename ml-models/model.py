@@ -7,6 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from imblearn.over_sampling import SMOTE, RandomOverSampler
 import warnings
+import pickle
 warnings.filterwarnings('ignore')
 
 # Step 1: Load and preprocess dataset
@@ -183,7 +184,7 @@ def interactive_prediction():
         print("⚠️ Outbreak model not trained due to single-class issue.")
 
 # Run the prediction flow
-interactive_prediction()
+# interactive_prediction()
 
 X_d_train, X_d_test, y_d_train, y_d_test = train_test_split(X_d_bal, y_d_bal, test_size=0.2, random_state=42)
 y_d_pred = disease_model.predict(X_d_test)
@@ -215,7 +216,7 @@ print(classification_report(
 
 print("✅ Accuracy:", accuracy_score(y_o_test, y_o_pred))
 
-import pickle
+
 
 # Save disease model
 with open("disease_model.pkl", "wb") as f:
@@ -238,3 +239,138 @@ with open("scaler_disease.pkl", "wb") as f:
 
 with open("scaler_outbreak.pkl", "wb") as f:
     pickle.dump(scaler_outbreak, f)
+
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+# Assuming you already have y_d_test and disease_model
+y_d_pred = disease_model.predict(X_d_test)
+
+# Confusion Matrix
+cm = confusion_matrix(y_d_test, y_d_pred)
+labels = le_disease.inverse_transform(sorted(set(y_d_test)))
+
+# Plot
+plt.figure(figsize=(6, 5))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=labels, yticklabels=labels)
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Disease Model - Confusion Matrix")
+plt.tight_layout()
+plt.savefig("disease_confusion_matrix.png")  # Save it to use in API if needed
+plt.close()
+
+
+
+# Predict using outbreak model
+y_o_pred = outbreak_model.predict(X_o_test)
+
+# Generate confusion matrix
+cm = confusion_matrix(y_o_test, y_o_pred)
+
+# Labels directly used (if already readable)
+labels = sorted(set(y_o_test))
+
+# Plot confusion matrix
+plt.figure(figsize=(6, 5))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=labels, yticklabels=labels)
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Outbreak Model - Confusion Matrix")
+plt.savefig("outbreak_confusion_matrix.png") 
+plt.tight_layout()
+plt.show()
+
+
+
+# Get predictions from your disease model
+y_d_pred = disease_model.predict(X_d_test)
+
+# Generate the classification report as a dictionary
+report_dict = classification_report(
+    y_d_test,
+    y_d_pred,
+    target_names=le_disease.inverse_transform(sorted(set(y_d_test))),
+    output_dict=True
+)
+
+# Filter to only class-specific metrics (exclude avg/accuracy)
+classes = [label for label in report_dict if label not in ['accuracy', 'macro avg', 'weighted avg']]
+metrics = ['precision', 'recall', 'f1-score']
+
+# Prepare data for plotting
+plot_data = {metric: [report_dict[cls][metric] for cls in classes] for metric in metrics}
+
+# Better spacing
+x = np.arange(len(classes))
+bar_width = 0.25
+
+plt.figure(figsize=(10, 6))
+colors = ['#4CAF50', '#2196F3', '#FFC107']
+
+for i, metric in enumerate(metrics):
+    plt.bar(
+        x + i * bar_width,
+        plot_data[metric],
+        width=bar_width,
+        label=metric.capitalize(),
+        color=colors[i]
+    )
+
+plt.xticks(x + bar_width, classes, fontsize=12, rotation=45)  # 🔄 Rotation added
+plt.ylim(0, 1.1)
+plt.ylabel("Score", fontsize=12)
+plt.title("Disease Model - Classification Metrics", fontsize=14)
+plt.legend()
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+plt.tight_layout()
+plt.savefig("disease_classification_report.png")
+plt.show()
+
+
+# Get predictions from your outbreak model
+y_o_pred = outbreak_model.predict(X_o_test)
+
+# Generate the classification report as a dictionary
+report_dict = classification_report(
+    y_o_test,
+    y_o_pred,
+    target_names=["No Outbreak", "Outbreak"],
+    output_dict=True
+)
+
+# Filter to only class-specific metrics (exclude avg/accuracy)
+classes = [label for label in report_dict if label not in ['accuracy', 'macro avg', 'weighted avg']]
+metrics = ['precision', 'recall', 'f1-score']
+
+# Prepare data for plotting
+plot_data = {metric: [report_dict[cls][metric] for cls in classes] for metric in metrics}
+
+# Better spacing
+x = np.arange(len(classes))
+bar_width = 0.25
+
+plt.figure(figsize=(10, 6))
+colors = ['#FF5722', '#3F51B5', '#00BCD4']  # Different color scheme
+
+for i, metric in enumerate(metrics):
+    plt.bar(
+        x + i * bar_width,
+        plot_data[metric],
+        width=bar_width,
+        label=metric.capitalize(),
+        color=colors[i]
+    )
+
+plt.xticks(x + bar_width, classes, fontsize=12, rotation=45)
+plt.ylim(0, 1.1)
+plt.ylabel("Score", fontsize=12)
+plt.title("Outbreak Model - Classification Metrics", fontsize=14)
+plt.legend()
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+plt.tight_layout()
+plt.savefig("outbreak_classification_report.png")
+plt.show()
