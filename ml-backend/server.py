@@ -130,6 +130,76 @@ def predict_outbreak():
         })
     else:
         return jsonify({"error": "Outbreak model is not trained on both classes."}), 500
+ 
+@app.route("/predict-disease-outbreak", methods=["POST"])
+def predict_disease_outbreak():
+    data = request.json
+
+    # Validate required input
+    required_fields = ["Disaster_Type", "Temperature", "Rainfall", "Humidity",
+                       "Population_Density", "Healthcare_Access"]
+    missing = [field for field in required_fields if field not in data]
+    if missing:
+        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
+
+    try:
+        # Encode Disaster_Type
+        disaster_type = data["Disaster_Type"]
+        if disaster_type not in le_disaster.classes_:
+            return jsonify({"error": f"Invalid Disaster_Type: {disaster_type}"}), 400
+
+        encoded_disaster = le_disaster.transform([disaster_type])[0]
+
+        # Create DataFrame for disease prediction
+        temp_df = pd.DataFrame([{
+            'Disaster_Type_Encoded': encoded_disaster,
+            'Temperature': data.get('Temperature'),
+            'Rainfall': data.get('Rainfall'),
+            'Humidity': data.get('Humidity'),
+            'Population_Density': data.get('Population_Density'),
+            'Healthcare_Access': data.get('Healthcare_Access')
+        }])
+
+        # Scale for disease model
+        temp_df[features[1:]] = scaler_disease.transform(temp_df[features[1:]])
+
+        # Top 5 disease prediction
+        probs = disease_model.predict_proba(temp_df)[0]
+        top_indices = np.argsort(probs)[-5:][::-1]
+        top_diseases = le_disease.inverse_transform(top_indices)
+
+        # Predict outbreak for each disease
+        outbreak_results = []
+        for disease in top_diseases:
+            encoded_disease = le_disease.transform([disease])[0]
+            input_df = pd.DataFrame([{
+                'Disaster_Type_Encoded': encoded_disaster,
+                'Temperature': data.get('Temperature'),
+                'Rainfall': data.get('Rainfall'),
+                'Humidity': data.get('Humidity'),
+                'Population_Density': data.get('Population_Density'),
+                'Healthcare_Access': data.get('Healthcare_Access'),
+                'Disease_Encoded': encoded_disease
+            }])
+            input_df[features[1:]] = scaler_outbreak.transform(input_df[features[1:]])
+            pred = outbreak_model.predict(input_df)[0]
+            prob = outbreak_model.predict_proba(input_df)[0][list(outbreak_model.classes_).index(1)]
+            outbreak_results.append({
+                "Disease": disease,
+                "Prediction": "Outbreak Likely" if pred == 1 else "No Outbreak",
+                "Probability": round(prob * 100, 2)
+            })
+
+        return jsonify({
+            "Disaster_Type": disaster_type,
+            "Region": data.get("Region"),
+            "Predictions": outbreak_results
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
     
 @app.route('/disease/accuracy', methods=['GET'])
 def disease_model_report_accuracy():
