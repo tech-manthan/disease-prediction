@@ -31,21 +31,6 @@ const disasterRegions: Record<DisasterType, string[]> = {
   Tornado: ["Oklahoma", "Kansas", "Nebraska", "Missouri", "Texas"],
 };
 
-const disasterDiseases: Record<DisasterType, string[]> = {
-  Earthquake: ["Cholera", "Typhoid", "Respiratory Infection", "None"],
-  Flood: [
-    "Cholera",
-    "Leptospirosis",
-    "Typhoid",
-    "Dengue",
-    "Hepatitis A",
-    "None",
-  ],
-  Heatwave: ["Heat Stroke", "Dehydration", "None"],
-  Hurricane: ["Dengue", "Cholera", "Typhoid", "Leptospirosis", "None"],
-  Tornado: ["Respiratory Infection", "Injury-related Infection", "None"],
-};
-
 const regionFeatures: Record<string, RegionFeature> = {
   California: {
     temperature: [15, 35],
@@ -236,20 +221,15 @@ function generateDisasterData() {
     getRandomInRange(...features.healthcare_access, 0)
   );
 
-  const disease = getRandom(disasterDiseases[disaster]);
-  const disease_reported = disease === "None" ? 0 : getRandom([0, 1]);
-
   return {
-    date: getRandomDate(),
-    disaster_type: disaster,
-    region,
-    temperature,
-    rainfall,
-    humidity,
-    population_density,
-    healthcare_access,
-    disease_type: disease,
-    disease_reported,
+    Date: getRandomDate(),
+    Disaster_Type: disaster,
+    Region: region,
+    Temperature: temperature,
+    Rainfall: rainfall,
+    Humidity: humidity,
+    Population_Density: population_density,
+    Healthcare_Access: healthcare_access,
   };
 }
 

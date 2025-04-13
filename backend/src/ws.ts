@@ -9,9 +9,13 @@ wss.on("connection", (ws) => {
     ws.send(JSON.stringify(data));
 
     const delay =
-      Math.random() * (20 * 60 * 60 * 1000 - 3 * 60 * 1000) + 3 * 60 * 1000; // Between 3min to 20hr
-    setTimeout(sendRandomData, delay);
+      Math.random() * (10 * 60 * 1000 - 3 * 60 * 1000) + 3 * 60 * 1000; // Between 3min to 20hr
+    setTimeout(sendRandomData, 1000 * 60 * 1);
   }
 
-  sendRandomData();
+  setTimeout(sendRandomData, 1000 * 60 * 0.5);
+
+  ws.on("close", () => {
+    console.log("disconnected");
+  });
 });
