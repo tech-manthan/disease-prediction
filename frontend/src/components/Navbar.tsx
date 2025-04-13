@@ -17,7 +17,6 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { styled, alpha } from "@mui/material/styles";
 import { Link, useNavigate } from "react-router";
 import { ColorModeIconDropdown } from "../theme";
-import { SitemarkIcon } from "../assets/icons";
 import { useState } from "react";
 import { useUserStore } from "../store/useAuthStore";
 
@@ -81,10 +80,19 @@ export default function Navbar() {
     >
       <Container maxWidth="lg">
         <StyledToolbar variant="dense" disableGutters>
-          {/* Left Logo */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Link to={"/"}>
-              <SitemarkIcon />
+              <Box
+                component="img"
+                src="/images/raahat.png"
+                alt="My Image"
+                sx={{
+                  width: "120px",
+                  mt: 1,
+                  height: "auto",
+                  borderRadius: 1,
+                }}
+              />
             </Link>
           </Box>
 
@@ -103,7 +111,6 @@ export default function Navbar() {
             ))}
           </Box>
 
-          {/* Right side (auth + theme switch) */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             {user ? (
               <>

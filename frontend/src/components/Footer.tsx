@@ -10,7 +10,6 @@ import Typography from "@mui/material/Typography";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TwitterIcon from "@mui/icons-material/X";
-import { SitemarkIcon } from "../assets/icons";
 import { Link as RouterLink } from "react-router";
 
 function Copyright() {
@@ -54,7 +53,17 @@ export default function Footer() {
           }}
         >
           <Box sx={{ width: { xs: "100%", sm: "60%" } }}>
-            <SitemarkIcon />
+            <Box
+              component="img"
+              src="/images/raahat.png"
+              alt="My Image"
+              sx={{
+                width: "120px",
+                mt: 1,
+                height: "auto",
+                borderRadius: 1,
+              }}
+            />
             <Typography
               variant="body2"
               gutterBottom

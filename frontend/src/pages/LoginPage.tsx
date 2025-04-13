@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
-import { SitemarkIcon } from "../assets/icons";
 import { Link as RouterLink, useNavigate } from "react-router";
 
 import { useState } from "react";
@@ -107,7 +106,6 @@ export default function LoginPage() {
   return (
     <LoginContainer direction="column" justifyContent="space-between">
       <Card variant="outlined">
-        <SitemarkIcon />
         <Typography
           component="h1"
           variant="h4"

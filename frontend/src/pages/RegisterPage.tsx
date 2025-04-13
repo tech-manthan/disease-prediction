@@ -13,7 +13,6 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
-import { SitemarkIcon } from "../assets/icons";
 import { Link as RouterLink } from "react-router";
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -108,7 +107,6 @@ export default function RegisterPage() {
   return (
     <RegisterContainer direction="column" justifyContent="space-between">
       <Card variant="outlined">
-        <SitemarkIcon />
         <Typography
           component="h1"
           variant="h4"
